@@ -12,132 +12,98 @@ import java.util.List;
 
 public class UserServiceImpl implements UserService {
 
-    Connection connection;
-    Statement statement;
-
     private static final String SQL_COMMAND_CREATE_BASE = "CREATE TABLE IF NOT EXISTS usersTable" +
             "(id BIGINT PRIMARY KEY AUTO_INCREMENT," +
             "name VARCHAR(30)," +
             "lastName VARCHAR(30)," +
             "age TINYINT)";
 
-    private static final String SQL_COMMAND_DROP_TABLE = "DROP TABLE usersTable";
+    private static final String SQL_COMMAND_DROP_TABLE = "DROP TABLE IF EXISTS usersTable";
 
-    public void createUsersTable() throws SQLException {
+    Transaction transaction;
+    Session session;
+
+    @Override
+    public void createUsersTable() throws HibernateException {
         try {
-            connection = Util.getConnection();
-            statement = connection.createStatement();
-            statement.executeUpdate(SQL_COMMAND_CREATE_BASE);
-            System.out.println("Table \"usersTable\" create successful");
-        } catch (SQLException e) {
+            session = Util.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+            session.createSQLQuery(SQL_COMMAND_CREATE_BASE).executeUpdate();
+            transaction.commit();
+            System.out.println("Таблица 'userstable' успешно создана...");
+        } catch (HibernateException e) {
+            transaction.rollback();
             e.printStackTrace();
         } finally {
-            connection.close();
+            session.close();
         }
     }
 
-    public void dropUsersTable() throws SQLException {
-
-        try {
-            connection = Util.getConnection();
-            statement = connection.createStatement();
-
-            DatabaseMetaData md = connection.getMetaData();
-            ResultSet rs = md.getTables(null, null, "usersTable", null); //t is your tableName (defined in loop of your question)
-
-            if (rs.isBeforeFirst()) {
-                statement.executeUpdate(SQL_COMMAND_DROP_TABLE);
-                System.out.println("Table \"usersTable\" DROP was successful!");
-            } else {
-                System.out.println("Таблицы \"usersTable\" не существует!");
-            }
-        } catch (SQLException e) {
+    @Override
+    public void dropUsersTable() throws HibernateException {
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.createSQLQuery(SQL_COMMAND_DROP_TABLE).executeUpdate();
+            transaction.commit();
+            System.out.println("Таблица 'userstable' успешно удалена...");
+        } catch (HibernateException e) {
+            transaction.rollback();
             e.printStackTrace();
-        } finally {
-            connection.close();
         }
     }
 
-    public void saveUser(String name, String lastName, byte age) throws SQLException {
-
-        try {
-            connection = Util.getConnection();
-            statement = connection.createStatement();
-
-            int rows = statement.executeUpdate(
-                    "INSERT usersTable(name, lastName, age) VALUES ("
-                            + "'" + name + "', " + "'" + lastName + "', " + age + ")");
-
+    @Override
+    public void saveUser(String name, String lastName, byte age) {
+        try (Session session = Util.getSessionFactory().openSession()) {
+            User user = new User(name, lastName, age);
+            transaction = session.beginTransaction();
+            session.save(user);
+            transaction.commit();
             System.out.println("User с именем - " + name + " добавлен в базу данных");
-
-        } catch (SQLException e) {
+        } catch (HibernateException e) {
+            transaction.rollback();
             e.printStackTrace();
-        } finally {
-            connection.close();
         }
     }
 
-    public void removeUserById(long id) throws SQLException {
-
-        try {
-            connection = Util.getConnection();
-            statement = connection.createStatement();
-
-            if (id < 1) {
-                System.out.println("ID cannot be negative");
-            } else {
-                int rows = statement.executeUpdate("DELETE FROM usersTable WHERE Id = " + id);
-            }
-        } catch (SQLException e) {
+    @Override
+    public void removeUserById(long id) {
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            User userRemove = session.get(User.class, id);
+            session.delete(userRemove);
+            transaction.commit();
+            System.out.println("User " + userRemove.getName() + " удалён");
+        } catch (HibernateException e) {
+            transaction.rollback();
             e.printStackTrace();
-        } finally {
-            connection.close();
         }
     }
 
-    public List<User> getAllUsers() throws SQLException {
-        ResultSet rs;
-        List<User> userList = new ArrayList<>();
-        try {
-            connection = Util.getConnection();
-            statement = connection.createStatement();
-            rs = statement.executeQuery("SELECT * FROM usersTable");
-            while (rs.next()) {
-                Long id = rs.getLong("id");
-                String name = rs.getString("name");
-                String lastName = rs.getString("lastName");
-                byte age = rs.getByte("age");
-
-                User user = new User();
-                user.setId(id);
-                user.setName(name);
-                user.setLastName(lastName);
-                user.setAge(age);
-                userList.add(user);
-            }
-
+    @Override
+    public List<User> getAllUsers() {
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            List<User> userList = session.createQuery("from User")
+                    .getResultList();
+            transaction.commit();
             return userList;
-
-        } catch (SQLException e) {
+        } catch (HibernateException e) {
+            transaction.rollback();
             e.printStackTrace();
-        } finally {
-            connection.close();
         }
         return null;
     }
 
-    public void cleanUsersTable() throws SQLException {
-
-        try {
-            connection = Util.getConnection();
-            statement = connection.createStatement();
-
-            statement.executeUpdate("TRUNCATE TABLE usersTable");
-
-        } catch (SQLException e) {
+    @Override
+    public void cleanUsersTable() {
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.createQuery("delete User ").executeUpdate();
+            transaction.commit();
+        } catch (HibernateException e) {
+            transaction.rollback();
             e.printStackTrace();
-        } finally {
-            connection.close();
         }
     }
 }

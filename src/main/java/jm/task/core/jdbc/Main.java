@@ -1,7 +1,7 @@
 package jm.task.core.jdbc;
 
 import jm.task.core.jdbc.dao.UserDao;
-import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
+import jm.task.core.jdbc.dao.UserDaoHibernateImpl;
 
 import org.hibernate.HibernateException;
 
@@ -11,22 +11,22 @@ public class Main {
 
     public static void main(String[] args) {
 
-        UserDao userDaoJDBC = new UserDaoJDBCImpl();
+        UserDao userDaoHibernate = new UserDaoHibernateImpl();
 
         try {
 
-            userDaoJDBC.createUsersTable();
+            userDaoHibernate.createUsersTable();
 
-            userDaoJDBC.saveUser("Vakhit", "Sharipov", (byte) 27);
-            userDaoJDBC.saveUser("Andrey", "Vudrya", (byte) 33);
-            userDaoJDBC.saveUser("Sergey", "Ivanov", (byte) 29);
-            userDaoJDBC.saveUser("Ivan", "Sergeev", (byte) 77);
+            userDaoHibernate.saveUser("Vakhit", "Sharipov", (byte) 27);
+            userDaoHibernate.saveUser("Andrey", "Vudrya", (byte) 33);
+            userDaoHibernate.saveUser("Sergey", "Ivanov", (byte) 29);
+            userDaoHibernate.saveUser("Ivan", "Sergeev", (byte) 77);
 
-            System.out.println(userDaoJDBC.getAllUsers().toString());
+            System.out.println(userDaoHibernate.getAllUsers().toString());
 
-            userDaoJDBC.cleanUsersTable();
+            userDaoHibernate.cleanUsersTable();
 
-            userDaoJDBC.dropUsersTable();
+            userDaoHibernate.dropUsersTable();
 
         } catch (HibernateException | SQLException e) {
             e.printStackTrace();
