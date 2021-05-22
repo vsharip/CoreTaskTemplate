@@ -3,6 +3,8 @@ package jm.task.core.jdbc;
 import jm.task.core.jdbc.dao.UserDao;
 import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
 
+import org.hibernate.HibernateException;
+
 import java.sql.*;
 
 public class Main {
@@ -12,15 +14,21 @@ public class Main {
         UserDao userDaoJDBC = new UserDaoJDBCImpl();
 
         try {
+
             userDaoJDBC.createUsersTable();
-            userDaoJDBC.saveUser("Ivan", "Ivanov", (byte) 21);
-            userDaoJDBC.saveUser("Sergey", "Parshivluk", (byte) 32);
-            userDaoJDBC.saveUser("Sergey", "Sergeyenko", (byte) 19);
-            userDaoJDBC.saveUser("Zidane", "NeBeyGolovoy", (byte) 34);
+
+            userDaoJDBC.saveUser("Vakhit", "Sharipov", (byte) 27);
+            userDaoJDBC.saveUser("Andrey", "Vudrya", (byte) 33);
+            userDaoJDBC.saveUser("Sergey", "Ivanov", (byte) 29);
+            userDaoJDBC.saveUser("Ivan", "Sergeev", (byte) 77);
+
             System.out.println(userDaoJDBC.getAllUsers().toString());
+
             userDaoJDBC.cleanUsersTable();
+
             userDaoJDBC.dropUsersTable();
-        } catch (SQLException e) {
+
+        } catch (HibernateException | SQLException e) {
             e.printStackTrace();
         }
     }

@@ -1,19 +1,20 @@
 package jm.task.core.jdbc.util;
 
 import com.mysql.fabric.jdbc.FabricMySQLDriver;
+
+import jm.task.core.jdbc.model.User;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.metamodel.Metadata;
-import org.hibernate.metamodel.MetadataSources;
+import org.hibernate.service.ServiceRegistry;
 
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.Properties;
 
 public class Util {
 
@@ -41,34 +42,29 @@ public class Util {
         return connection;
     }
 
-    public static class HibernateUtil {
+    public static SessionFactory getSessionFactory() {
 
-        private static StandardServiceRegistry standardServiceRegistry;
-        private static SessionFactory sessionFactory;
+        SessionFactory sessionFactory;
 
-        static {
-            StandardServiceRegistryBuilder regBuilder = new StandardServiceRegistryBuilder();
+        Configuration configuration = new Configuration();
 
-            Map<String, String> dbSettings = new HashMap<>();
-            dbSettings.put(Environment.URL, "jdbc:mysql://localhost:3306/user_base");
-            dbSettings.put(Environment.USER, "root");
-            dbSettings.put(Environment.PASS, "12qq1");
-            dbSettings.put(Environment.DRIVER, "com.mysql.JDBC.Driver");
-            dbSettings.put(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
+        Properties dbSettings = new Properties();
+        dbSettings.put(Environment.URL, URL_BASE);
+        dbSettings.put(Environment.USER, USER_NAME_CONNECT_BASE);
+        dbSettings.put(Environment.PASS, PASSWORD_CONNECT_BASE);
+        dbSettings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
+        dbSettings.put(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
 
-            regBuilder.applySettings(dbSettings);
-            standardServiceRegistry = regBuilder.build();
+        configuration.setProperties(dbSettings);
+        configuration.addAnnotatedClass(User.class);
 
-            MetadataSources mdSource = new MetadataSources(standardServiceRegistry);
-            Metadata metadata = mdSource.getMetadataBuilder().build();
-            sessionFactory = metadata.getSessionFactoryBuilder().build();
-        }
+        ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                .applySettings(configuration.getProperties()).build();
 
-        public static SessionFactory getSessionFactory() {
-            System.out.println("Соединенеие с базой выполнено успешно!");
-            return sessionFactory;
-        }
+        sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+
+        System.out.println("Connection...");
+
+        return sessionFactory;
     }
-
-    // реализуйте настройку соеденения с БД
 }
