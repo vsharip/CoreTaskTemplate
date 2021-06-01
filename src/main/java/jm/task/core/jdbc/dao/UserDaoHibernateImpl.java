@@ -16,16 +16,15 @@ public class UserDaoHibernateImpl implements UserDao {
 
     private static final String SQL_COMMAND_DROP_TABLE = "DROP TABLE IF EXISTS usersTable";
 
-    Transaction transaction;
-    Session session;
+    private Transaction transaction;
+
 
     public UserDaoHibernateImpl() {
     }
 
     @Override
     public void createUsersTable() throws HibernateException {
-        try {
-            session = Util.getSessionFactory().openSession();
+        try(Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             session.createSQLQuery(SQL_COMMAND_CREATE_BASE).executeUpdate();
             transaction.commit();
@@ -33,8 +32,6 @@ public class UserDaoHibernateImpl implements UserDao {
         } catch (HibernateException e) {
             transaction.rollback();
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
