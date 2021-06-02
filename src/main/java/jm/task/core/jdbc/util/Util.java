@@ -22,9 +22,10 @@ public class Util {
     private static final String USER_NAME_CONNECT_BASE = "root";
     private static final String PASSWORD_CONNECT_BASE = "12qq1";
 
-    public static Connection getConnection() {
+    private static SessionFactory sessionFactory;
+    private static Connection connection;
 
-        Connection connection = null;
+    public static Connection getConnection() {
 
         try {
             Driver driver = new FabricMySQLDriver();
@@ -43,8 +44,6 @@ public class Util {
     }
 
     public static SessionFactory getSessionFactory() {
-
-        SessionFactory sessionFactory;
 
         Configuration configuration = new Configuration();
 

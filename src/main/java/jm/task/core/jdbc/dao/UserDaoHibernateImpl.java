@@ -15,8 +15,7 @@ public class UserDaoHibernateImpl implements UserDao {
             "age TINYINT)";
 
     private static final String SQL_COMMAND_DROP_TABLE = "DROP TABLE IF EXISTS usersTable";
-
-    private Transaction transaction;
+    private static Transaction transaction;
 
 
     public UserDaoHibernateImpl() {

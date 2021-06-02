@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserServiceImpl implements UserService {
-
     private static final String SQL_COMMAND_CREATE_BASE = "CREATE TABLE IF NOT EXISTS usersTable" +
             "(id BIGINT PRIMARY KEY AUTO_INCREMENT," +
             "name VARCHAR(30)," +
@@ -20,13 +19,12 @@ public class UserServiceImpl implements UserService {
 
     private static final String SQL_COMMAND_DROP_TABLE = "DROP TABLE IF EXISTS usersTable";
 
-    Transaction transaction;
-    Session session;
+    private static Transaction transaction;
+
 
     @Override
     public void createUsersTable() throws HibernateException {
-        try {
-            session = Util.getSessionFactory().openSession();
+        try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             session.createSQLQuery(SQL_COMMAND_CREATE_BASE).executeUpdate();
             transaction.commit();
@@ -34,8 +32,6 @@ public class UserServiceImpl implements UserService {
         } catch (HibernateException e) {
             transaction.rollback();
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
