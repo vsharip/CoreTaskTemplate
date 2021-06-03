@@ -93,6 +93,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void cleanUsersTable() {
+
         try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             session.createQuery("delete User ").executeUpdate();
