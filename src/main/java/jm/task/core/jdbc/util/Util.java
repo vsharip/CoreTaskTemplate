@@ -53,7 +53,6 @@ public class Util {
         dbSettings.put(Environment.PASS, PASSWORD_CONNECT_BASE);
         dbSettings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
         dbSettings.put(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
-        dbSettings.put(Environment.AUTOCOMMIT, "false");
 
         configuration.setProperties(dbSettings);
         configuration.addAnnotatedClass(User.class);
